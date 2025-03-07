@@ -20,6 +20,19 @@ public class ApartmentService {
     public Optional<Apartment> getApartmentById(int id) {
         return apartmentRepository.findById(id);
     }
+    
+    public Apartment updateApartment(int id, Apartment newApartment) {
+        Optional<Apartment> existingApartment = apartmentRepository.findById(id);
+        if (existingApartment.isPresent()) {
+            Apartment apartment = existingApartment.get();
+            apartment.setApartmentNumber(newApartment.getApartmentNumber());
+            apartment.setFloor(newApartment.getFloor());
+            apartment.setArea(newApartment.getArea());
+            apartment.setStatus(newApartment.getStatus());
+            return apartmentRepository.save(apartment);
+        }
+        return null;
+    }
 
     public Apartment saveApartment(Apartment apartment) {
         return apartmentRepository.save(apartment);

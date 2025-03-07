@@ -2,11 +2,13 @@ package com.hatechno.controller;
 
 import com.hatechno.model.User;
 import com.hatechno.repository.UserRepository;
-import com.hatechno.security.JwtTokenProvider; // Import lớp JwtTokenProvider
+import com.hatechno.security.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +22,17 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider; // Thêm JwtTokenProvider
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsService userDetailsService; // Thêm UserDetailsService để lấy UserDetails
 
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, 
-                          PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
+                          PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
+                          UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userDetailsService = userDetailsService;
     }
 
     @PostMapping("/register")
@@ -43,18 +48,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
-        Authentication authentication = authenticationManager.authenticate(
+        authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
         );
 
-        if (authentication.isAuthenticated()) {
-            // Tạo JWT Token
-            String token = jwtTokenProvider.generateToken(user.getUsername());
+        // 🔹 Lấy UserDetails từ UserDetailsService
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 
-            // Trả về Token thay vì chỉ trả về thông báo
-            return ResponseEntity.ok(Map.of("token", token));
-        } else {
-            return ResponseEntity.status(401).body("Invalid username or password!");
-        }
+        // 🔹 Tạo JWT Token từ UserDetails
+        String token = jwtTokenProvider.generateToken(userDetails);
+
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }

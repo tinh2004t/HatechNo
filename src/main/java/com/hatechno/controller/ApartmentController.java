@@ -31,6 +31,11 @@ public class ApartmentController {
     public Optional<Apartment> getApartmentById(@PathVariable int id) {
         return apartmentService.getApartmentById(id);
     }
+    
+    @PutMapping("/{id}")
+    public Apartment updateApartment(@PathVariable int id, @RequestBody Apartment apartment) {
+        return apartmentService.updateApartment(id, apartment);
+    }
 
     @PostMapping
     public Apartment createApartment(@RequestBody Apartment apartment) {

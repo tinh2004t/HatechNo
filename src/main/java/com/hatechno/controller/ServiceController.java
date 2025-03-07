@@ -10,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/services")
-@CrossOrigin("*") // Cho phép gọi API từ frontend
 public class ServiceController {
 
     @Autowired
@@ -18,9 +17,8 @@ public class ServiceController {
 
     // Lấy danh sách tất cả dịch vụ
     @GetMapping
-    public ResponseEntity<List<ServiceEntity>> getAllServices() {
-        List<ServiceEntity> services = serviceService.getAllServices();
-        return ResponseEntity.ok(services);
+    public List<ServiceEntity> getAllServices() {
+        return serviceService.getAllServices();
     }
     
  // API cập nhật thông tin dịch vụ

@@ -47,17 +47,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // ✅ Tắt CSRF để tránh lỗi khi gọi API từ frontend
+            .csrf(csrf -> csrf.disable()) // ✅ Tắt CSRF để tránh lỗi frontend
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ✅ Không lưu session
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll() // ✅ Cho phép đăng nhập, đăng ký
-                .requestMatchers("/residents/**").permitAll() // ✅ Mở API cư dân
-                .requestMatchers("/apartments/**").permitAll() // ✅ Mở API căn hộ
+                .requestMatchers("/services/**").permitAll() //
+                .requestMatchers("/service-fees/**").permitAll()
+                .requestMatchers("/residents/**").permitAll()
+                .requestMatchers("/apartments/**").permitAll()
                 .requestMatchers("/payments/**").permitAll()
                 .requestMatchers("/invoices/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // ✅ Yêu cầu ADMIN với API quản trị
-                .requestMatchers("/api/user/**").hasRole("USER") // ✅ Yêu cầu USER với API người dùng
-                .requestMatchers("/api/complaints/**").hasAnyRole("USER", "ADMIN") // ✅ Cả USER và ADMIN truy cập
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // ✅ Chỉ ADMIN mới truy cập
+                .requestMatchers("/api/user/**").hasRole("USER") // ✅ Chỉ USER mới truy cập
+                .requestMatchers("/api/complaints/**").hasAnyRole("USER", "ADMIN") // ✅ Cả USER & ADMIN truy cập
                 .anyRequest().authenticated() // 🛑 Các API khác yêu cầu đăng nhập
             )
             .authenticationProvider(authenticationProvider())
@@ -65,4 +67,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }
